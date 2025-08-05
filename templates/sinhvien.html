@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tra cứu sinh viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .info {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tra cứu thông tin sinh viên</h1>
+    <form method="get">
+        <div class="form-group">
+            <label for="MaSV">Nhập mã sinh viên:</label>
+            <input type="text" id="MaSV" name="MaSV" required value="{{ MaSV or '' }}">
+        </div>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% elif sv %}
+        <div class="info">
+            <h3>Thông tin sinh viên:</h3>
+            <p><strong>Mã SV:</strong> {{ sv.MaSV }}</p>
+            <p><strong>Họ tên:</strong> {{ sv.TenSV }}</p>
+     
+            <p><strong>Mã lớp:</strong> {{ sv.Lop }}</p>
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>

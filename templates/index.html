@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Sinh Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+<div style="margin-top: 20px;">
+    <button onclick="window.location.href='http://localhost:5000/'">
+        🔍 Tra cứu sinh viên
+    </button>
+</div>
+    <h2>Thêm Sinh Viên</h2>
+    <form id="svForm">
+        <label for="MaSV">Mã sinh viên:</label>
+        <input type="text" name="MaSV" required>
+
+        <label for="TenSV">Tên sinh viên:</label>
+        <input type="text" name="TenSV" required>
+
+        <label for="Lop">Mã lớp:</label>
+        <select name="Lop" id="lopSelect" required>
+            <option value="">-- Chọn lớp --</option>
+        </select>
+
+        <button type="submit">Thêm sinh viên</button>
+        <div id="error"></div>
+    </form>
+
+    <h2>Danh Sách Lớp</h2>
+    <table id="lopTable">
+        <thead>
+            <tr>
+                <th>Mã lớp</th>
+                <th>Tên lớp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Lớp sẽ được thêm ở đây -->
+        </tbody>
+    </table>
+
+    <script>
+        // Thêm sinh viên
+        document.getElementById("svForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            document.getElementById("error").textContent = "";
+
+            const form = new FormData(e.target);
+            const data = {
+                MaSV: form.get("MaSV"),
+                TenSV: form.get("TenSV"),
+                Lop: form.get("Lop")
+            };
+
+            try {
+                const res = await fetch("http://192.168.1.6:8000/sinhvien/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert("✅ " + result.message);
+                    e.target.reset();
+                } else {
+                    document.getElementById("error").textContent = "❌ " + (result.detail || "Lỗi khi thêm sinh viên.");
+                }
+            } catch (err) {
+                document.getElementById("error").textContent = "❌ Không thể gửi yêu cầu. Hãy chắc chắn rằng server đang chạy.";
+            }
+        });
+
+        // Lấy danh sách lớp cho dropdown và bảng
+        async function loadDanhSachLop() {
+            try {
+                const res = await fetch("http://192.168.1.6:8000/lop/");
+                const dsLop = await res.json();
+
+                // Đổ vào select
+                const select = document.getElementById("lopSelect");
+                select.innerHTML = `<option value="">-- Chọn lớp --</option>`; // reset
+                dsLop.forEach(lop => {
+                    const option = document.createElement("option");
+                    option.value = lop.MaLop;
+                    option.textContent = `${lop.TenLop}`;
+                    select.appendChild(option);
+                });
+
+                // Đổ vào bảng
+                const tbody = document.querySelector("#lopTable tbody");
+                tbody.innerHTML = "";
+                dsLop.forEach(lop => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${lop.MaLop}</td><td>${lop.TenLop}</td>`;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                const tbody = document.querySelector("#lopTable tbody");
+                tbody.innerHTML = `<tr><td colspan="2">❌ Không thể tải danh sách lớp. Kiểm tra server.</td></tr>`;
+            }
+        }
+
+        loadDanhSachLop();
+    </script>
+    <!-- Tiếp nối từ phần mã bạn gửi -->
+<h2>Danh Sách Sinh Viên</h2>
+<table id="svTable">
+    <thead>
+        <tr>
+            <th>Mã sinh viên</th>
+            <th>Tên sinh viên</th>
+            <th> lớp</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Sinh viên sẽ được thêm ở đây -->
+    </tbody>
+</table>
+<script>
+    // Thêm sinh viên
+    document.getElementById("svForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        document.getElementById("error").textContent = "";
+
+        const form = new FormData(e.target);
+        const data = {
+            MaSV: form.get("MaSV"),
+            TenSV: form.get("TenSV"),
+            Lop: form.get("Lop")
+        };
+
+        try {
+            const res = await fetch("http://192.168.1.6:8000/sinhvien/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                alert("✅ " + result.message);
+                e.target.reset();
+                loadDanhSachSinhVien(); // reload danh sách sinh viên
+            } else {
+                document.getElementById("error").textContent = "❌ " + (result.detail || "Lỗi khi thêm sinh viên.");
+            }
+        } catch (err) {
+            document.getElementById("error").textContent = "❌ Không thể gửi yêu cầu. Hãy chắc chắn rằng server đang chạy.";
+        }
+    });
+
+    // Lấy danh sách lớp
+    async function loadDanhSachLop() {
+        try {
+            const res = await fetch("http://192.168.1.6:8000/lop/");
+            const dsLop = await res.json();
+
+            const select = document.getElementById("lopSelect");
+            select.innerHTML = `<option value="">-- Chọn lớp --</option>`;
+            dsLop.forEach(lop => {
+                const option = document.createElement("option");
+                option.value = lop.MaLop;
+                option.textContent = `${lop.TenLop}`;
+                select.appendChild(option);
+            });
+
+            const tbody = document.querySelector("#lopTable tbody");
+            tbody.innerHTML = "";
+            dsLop.forEach(lop => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${lop.MaLop}</td><td>${lop.TenLop}</td>`;
+                tbody.appendChild(row);
+            });
+        } catch (err) {
+            const tbody = document.querySelector("#lopTable tbody");
+            tbody.innerHTML = `<tr><td colspan="2">❌ Không thể tải danh sách lớp. Kiểm tra server.</td></tr>`;
+        }
+    }
+
+    // 👉 Lấy danh sách sinh viên
+    async function loadDanhSachSinhVien() {
+        try {
+            const res = await fetch("http://192.168.1.6:8000/sinhvien/");
+            const dsSV = await res.json();
+
+            const tbody = document.querySelector("#svTable tbody");
+            tbody.innerHTML = "";
+
+            dsSV.forEach(sv => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${sv.MaSV}</td><td>${sv.TenSV}</td><td>${sv.Lop}</td>`;
+                tbody.appendChild(row);
+            });
+        } catch (err) {
+            const tbody = document.querySelector("#svTable tbody");
+            tbody.innerHTML = `<tr><td colspan="3">❌ Không thể tải danh sách sinh viên. Kiểm tra server.</td></tr>`;
+        }
+    }
+
+    // Load cả hai bảng khi trang được tải
+    loadDanhSachLop();
+    loadDanhSachSinhVien();
+</script>
+
+</body>
+</html>
