@@ -1,4 +1,5 @@
 ỨNG DỤNG QUẢN LÝ SINH VIÊN VÀ LỚP HỌC
+
 Giới thiệu
 Đây là một ứng dụng web cho phép quản lý thông tin sinh viên và lớp học. Hệ thống cung cấp API RESTful để thêm, sửa, xóa, và lấy danh sách dữ liệu từ cơ sở dữ liệu SQL Server. Ứng dụng có thể truy cập qua mạng LAN, hỗ trợ giao tiếp giữa backend Python và frontend HTML/JS.
 
